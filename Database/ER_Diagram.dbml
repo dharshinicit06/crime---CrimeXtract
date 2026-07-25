@@ -1,0 +1,98 @@
+Table roles {
+  id uuid [pk]
+  role_name varchar
+}
+
+Table users {
+  id uuid [pk]
+  name varchar
+  email varchar
+  password_hash varchar
+  role_id uuid
+}
+
+Table officers {
+  id uuid [pk]
+  user_id uuid
+  badge_number varchar
+}
+
+Table locations {
+  id uuid [pk]
+  district varchar
+  city varchar
+  area varchar
+  latitude decimal
+  longitude decimal
+}
+
+Table crime_types {
+  id uuid [pk]
+  crime_name varchar
+  category varchar
+}
+
+Table firs {
+  id uuid [pk]
+  fir_number varchar
+  crime_type_id uuid
+  location_id uuid
+  officer_id uuid
+  status varchar
+  incident_date timestamp
+}
+
+Table accused {
+  id uuid [pk]
+  name varchar
+  age int
+  gender varchar
+}
+
+Table victims {
+  id uuid [pk]
+  name varchar
+  age int
+  gender varchar
+}
+
+Table fir_accused {
+  fir_id uuid
+  accused_id uuid
+}
+
+Table fir_victims {
+  fir_id uuid
+  victim_id uuid
+}
+
+Table evidence {
+  id uuid [pk]
+  fir_id uuid
+  evidence_type varchar
+}
+
+Table crime_history {
+  id uuid [pk]
+  accused_id uuid
+  previous_case varchar
+}
+
+Table financial_transactions {
+  id uuid [pk]
+  accused_id uuid
+  amount decimal
+}
+
+Ref: users.role_id > roles.id
+Ref: officers.user_id > users.id
+Ref: firs.location_id > locations.id
+Ref: firs.officer_id > officers.id
+Ref: firs.crime_type_id > crime_types.id
+Ref: fir_accused.fir_id > firs.id
+Ref: fir_accused.accused_id > accused.id
+Ref: fir_victims.fir_id > firs.id
+Ref: fir_victims.victim_id > victims.id
+Ref: evidence.fir_id > firs.id
+Ref: crime_history.accused_id > accused.id
+Ref: financial_transactions.accused_id > accused.id

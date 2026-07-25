@@ -1,0 +1,83 @@
+version: "3.9"
+
+x-common-env: &common-env
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  LOG_FORMAT: ${LOG_FORMAT:-json}
+  SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+
+services:
+  # ── PostgreSQL Database ─────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crime_intelligence
+      POSTGRES_USER: ${POSTGRES_USER:-crimeapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Database/Schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./Database/sample_data.sql:/docker-entrypoint-initdb.d/02-sample-data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-crimeapp} -d crime_intelligence"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── pgAdmin (development only) ─────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    profiles: ["dev"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@crimeai.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  # ── Backend API ────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-crimeapp}:${POSTGRES_PASSWORD:?}@postgres:5432/crime_intelligence
+      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-crimeapp}:${POSTGRES_PASSWORD:?}@postgres:5432/crime_intelligence
+      CORS_ORIGINS: ${CORS_ORIGINS:-"http://localhost:3000,http://localhost:5173,http://frontend"}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-"*"}
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
+      - ml_models:/app/ml/models
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-4} --log-level ${LOG_LEVEL:-info}
+      "
+
+  # ── Frontend ───────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  uploads_data:
+  ml_models:

@@ -1,0 +1,60 @@
+# ─── Python ─────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ─── Virtual Environment ───────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ─── Node.js / Frontend ────────────────────────────────────────
+node_modules/
+frontend/dist/
+
+# ─── ML / Data ─────────────────────────────────────────────────
+*.pkl
+*.csv
+backend/ml/dataset/
+
+# ─── IDE / Editor ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Logs ───────────────────────────────────────────────────────
+logs/
+*.log
+
+# ─── Database / Migrations ─────────────────────────────────────
+*.db
+*.sqlite
+
+# ─── Environment ────────────────────────────────────────────────
+.env
+.env.local
+.env.development
+.env.production
+!.env.example
+
+# ─── Testing ────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+test_reports/
+
+# ─── Project Specific ──────────────────────────────────────────
+alembic/versions/*.pyc
