@@ -1,0 +1,1 @@
+import{b as a}from"./index-C5l1xrdM.js";async function i(t={}){return(await a.get("/firs",{params:t})).data}async function n(t){return(await a.post("/firs",t)).data}async function c(t){await a.delete(`/firs/${t}`)}async function e(){return(await a.get("/firs/statistics")).data}export{n as c,c as d,e as g,i as l};
