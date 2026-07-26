@@ -102,12 +102,16 @@ async def root() -> dict:
 
 
 if __name__ == "__main__":
+    import os
     import uvicorn
+
+    # Use Catalyst-assigned port if available, otherwise fall back to config
+    port = int(os.getenv("X_ZOHO_CATALYST_LISTEN_PORT", settings.PORT))
 
     uvicorn.run(
         "app.main:app",
         host=settings.HOST,
-        port=settings.PORT,
+        port=port,
         reload=settings.is_development,
         workers=settings.WORKERS if not settings.is_development else 1,
         log_level=settings.LOG_LEVEL.lower(),

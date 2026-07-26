@@ -33,8 +33,8 @@ RUN mkdir -p uploads/chat logs
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"
+    CMD python -c "import os; import urllib.request; port = os.getenv('X_ZOHO_CATALYST_LISTEN_PORT', '8000'); urllib.request.urlopen(f'http://localhost:{port}/api/v1/health')"
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD sh -c 'uvicorn app.main:app --host 0.0.0.0 --port ${X_ZOHO_CATALYST_LISTEN_PORT:-8000} --workers 2'

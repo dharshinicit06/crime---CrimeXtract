@@ -1,0 +1,7 @@
+{
+  "command": "sh -c 'python3 -m pip install --no-cache-dir --target /tmp/packages -r requirements.txt && PYTHONPATH=/tmp/packages:$PYTHONPATH python3 -u -m uvicorn app.main:app --host 0.0.0.0 --port 9000'",
+  "build_path": "/",
+  "stack": "python313",
+  "env_variables": {},
+  "memory": 512
+}
